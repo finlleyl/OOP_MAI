@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(TESTS "Build tests" OFF)
 
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp
+        include/function.h)
 
 target_include_directories(main PRIVATE include)
 
@@ -15,7 +16,8 @@ if (TESTS)
 
     add_subdirectory(external/googletest)
 
-    add_executable(test tests/function_test.cpp src/function.cpp)
+    add_executable(test tests/function_test.cpp src/function.cpp
+            include/function.h)
 
     target_link_libraries(test gtest gtest_main)
 
