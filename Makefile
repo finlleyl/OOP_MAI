@@ -10,5 +10,4 @@ run: @./build/main
 
 test: @./build/test
 
-clean-build:
-	@rm -rf ./build/
+clean-build: @rm -rf ./build/
