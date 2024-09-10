@@ -32,7 +32,7 @@ jobs:
 
     - name: Run Clang-Tidy
       run: |
-        find src -name "*.cpp" | xargs clang-tidy -- -Iinclude
+        clang-tidy src/*.cpp -- -Iinclude
 
 
     - name: Build project
