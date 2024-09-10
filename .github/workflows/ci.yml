@@ -19,13 +19,15 @@ jobs:
       with:
         submodules: true
 
+
     - name: Install dependencies
       run: | 
         sudo apt-get update
-        sudo apt-get install -y cmake g++ make clang clang-tidy
+        sudo apt-get install -y cmake g++ make clang
 
-    - name: Install Google test
-      run: |
+
+    - name: Install Clang-Tidy
+      run: sudo apt-get install -y clang-tidy
         
 
     - name: Run Clang-Tidy
@@ -36,5 +38,6 @@ jobs:
     - name: Build project
       run: make build
 
+      
     - name: Run tests
       run: make test
