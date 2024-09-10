@@ -30,10 +30,8 @@ jobs:
 
     - name: Run Clang-Tidy
       run: |
-        mkdir -p build
-        cd build
-        cmake ..
-        run-clang-tidy
+        clang-tidy src/**/*.cpp -- -Iinclude
+
 
     - name: Build project
       run: make build
