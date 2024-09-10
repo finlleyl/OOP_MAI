@@ -16,11 +16,17 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        submodules: true
 
     - name: Install dependencies
       run: | 
         sudo apt-get update
         sudo apt-get install -y cmake g++ make clang clang-tidy
+
+    - name: Install Google test
+      run: |
+        
 
     - name: Run Clang-Tidy
       run: |
