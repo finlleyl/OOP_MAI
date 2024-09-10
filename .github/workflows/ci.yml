@@ -32,12 +32,12 @@ jobs:
 
     - name: Run Clang-Tidy
       run: |
-        clang-tidy src/**/*.cpp -- -Iinclude
+        find src -name "*.cpp" | xargs clang-tidy -- -Iinclude
 
 
     - name: Build project
       run: make build
 
-      
+
     - name: Run tests
       run: make test
