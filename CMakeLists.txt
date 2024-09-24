@@ -12,7 +12,7 @@ target_include_directories(main PRIVATE include)
 
 add_subdirectory(external/googletest)
 
-add_executable(test tests/function_test.cpp src/money.cpp)
+add_executable(test tests/class_test.cpp src/money.cpp)
 
 target_include_directories(test PRIVATE include)
 

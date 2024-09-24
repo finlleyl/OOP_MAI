@@ -45,6 +45,9 @@ private:
     void Normalize();
     void Normalize(Money& money) const;
 
+    void ValidateString(const std::string& str);
+    void ValidateData(const std::initializer_list<T>& data);
+
 };
 
 #endif // MONEY_CLASS

@@ -5,6 +5,8 @@
 Money::Money() : data_(nullptr), size_(0) {}
 
 Money::Money(const std::initializer_list<T>& t) : size_(t.size()) {
+    ValidateData(t);
+
     data_ = new T[size_];
 
     std::copy(t.begin(), t.end(), data_);
@@ -20,6 +22,8 @@ Money::Money(const std::string& t) {
             clean_string += c;
         }
     }
+
+    ValidateString(clean_string);
 
     size_ = clean_string.length();
     data_ = new T[size_];
@@ -195,7 +199,13 @@ Money& Money::operator-=(const Money& other) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Money& money) {
-    if (money.size_ <= 2) {
+    if (money.size_ == 0) {
+        os << "0.00";
+    }
+    else if (money.size_ == 1) {
+        os << "0.0" << static_cast<int>(money.data_[0]);
+    }
+    else if (money.size_ <= 2) {
         os << "0.";
         for (size_t i = money.size_; i > 0; --i) {
             T digit = money.data_[i - 1];
@@ -273,5 +283,20 @@ void Money::Normalize(Money& money) const {
 
 Money::~Money() {
     delete[] data_;
-    
+}
+
+void Money::ValidateString(const std::string& str) {
+    for (char c : str) {
+        if ((c < '0' || c > '9') && c != '.') {
+            throw std::invalid_argument("Invalid character in input string");
+        }
+    }
+}
+
+void Money::ValidateData(const std::initializer_list<T>& data) {
+    for (T value : data) {
+        if (value < 0 || value > 9) {
+            throw std::invalid_argument("Invalid digit in initializer list");
+        }
+    }
 }
