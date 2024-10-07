@@ -2,7 +2,7 @@
 #include "rectangle.h"
 #include "square.h"
 #include "trapezoid.h"
-#include "FigureArray.h"
+#include "figurearray.h"
 
 TEST(RectangleTest, Creation) {
     Rectangle rect(0, 0, 4, 3);
