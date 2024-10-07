@@ -1,5 +1,5 @@
 #include <iostream>
-#include "FigureArray.h"
+#include "figurearray.h"
 #include "rectangle.h"
 #include "square.h"
 #include "trapezoid.h"
