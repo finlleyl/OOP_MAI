@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <stdexcept>
+#include "concepts.h"
 #include "point.h"
 
 template <Number T>
@@ -10,7 +11,7 @@ class Figure {
 public:
     virtual ~Figure() noexcept = default;
 
-    virtual std::pair<double, double> Center() const = 0;
+    virtual std::pair<T, T> Center() const = 0;
 
     virtual explicit operator double() const = 0;
 
@@ -23,5 +24,11 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const Figure &figure);
 };
+
+template <Number T>
+std::ostream &operator<<(std::ostream &os, const Figure<T> &figure) {
+    figure.Print(os);
+    return os;
+}
 
 #endif //FIGURE_H

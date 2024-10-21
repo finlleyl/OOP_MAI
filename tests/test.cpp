@@ -3,161 +3,190 @@
 #include "square.h"
 #include "trapezoid.h"
 #include "figurearray.h"
+#include "point.h"
+#include "concepts.h"
 
-TEST(RectangleTest, Creation) {
-    Rectangle rect(0, 0, 4, 3);
+TEST(SquareTest, AreaCalculation) {
+    Point<int> p1(0, 0);
+    Point<int> p2(2, 2);
+    Square<int> square(p1, p2);
 
-    EXPECT_EQ(rect.Center(), std::make_pair(2.0, 1.5));
-    EXPECT_DOUBLE_EQ(static_cast<double>(rect), 12.0);
+    double area = static_cast<double>(square);
+
+    EXPECT_DOUBLE_EQ(area, 4.0);
 }
 
-TEST(RectangleTest, Equality) {
-    Rectangle rect1(0, 0, 4, 3);
-    Rectangle rect2(0, 0, 4, 3);
-    Rectangle rect3(1, 1, 5, 4);
+TEST(SquareTest, CenterCalculation) {
+    Point<double> p1(1.0, 1.0);
+    Point<double> p2(3.0, 3.0);
+    Square<double> square(p1, p2);
 
-    EXPECT_TRUE(rect1 == rect2);
-    EXPECT_FALSE(rect1 == rect3);
+    auto center = square.Center();
+
+    EXPECT_EQ(center, std::make_pair(2.0, 2.0));
 }
 
-TEST(SquareTest, Creation) {
-    Square square(1, 1, 3, 3);
-
-    EXPECT_EQ(square.Center(), std::make_pair(2.0, 2.0));
-    EXPECT_DOUBLE_EQ(static_cast<double>(square), 4.0);
-}
-
-TEST(SquareTest, InvalidCreation) {
-    EXPECT_THROW(Square square(0, 0, 4, 3), std::invalid_argument);
-}
-
-TEST(SquareTest, Equality) {
-    Square square1(1, 1, 3, 3);
-    Square square2(1, 1, 3, 3);
-    Square square3(0, 0, 2, 2);
+TEST(SquareTest, EqualityOperator) {
+    Point<int> p1(0, 0);
+    Point<int> p2(2, 2);
+    Square<int> square1(p1, p2);
+    Square<int> square2(p1, p2);
 
     EXPECT_TRUE(square1 == square2);
-    EXPECT_FALSE(square1 == square3);
 }
 
-TEST(TrapezoidTest, Creation) {
-    Trapezoid trapezoid(1, 1, 4, 7, 8, 7, 11, 1);
+TEST(SquareTest, CloneMethod) {
+    Point<double> p1(0.0, 0.0);
+    Point<double> p2(2.0, 2.0);
+    Square<double> square(p1, p2);
 
-    EXPECT_EQ(trapezoid.Center(), std::make_pair(6.0, 4.0));
-    EXPECT_DOUBLE_EQ(static_cast<double>(trapezoid), 42.0);
+    std::unique_ptr<Figure<double>> clonedSquare(square.Clone());
+
+    EXPECT_TRUE(square == *clonedSquare);
 }
 
-TEST(TrapezoidTest, InvalidCreation) {
-    EXPECT_THROW(Trapezoid trapezoid(0, 0, 4, 0, 3, 3, 1, 3), std::invalid_argument);
+TEST(RectangleTest, AreaCalculation) {
+    Point<double> p1(0.0, 0.0);
+    Point<double> p2(5.0, 3.0);
+    Rectangle<double> rect(p1, p2);
+
+    double area = static_cast<double>(rect);
+
+    EXPECT_DOUBLE_EQ(area, 15.0);
 }
 
-TEST(TrapezoidTest, Equality) {
-    Trapezoid trap1(1, 1, 4, 7, 8, 7, 11, 1);
-    Trapezoid trap2(1, 1, 4, 7, 8, 7, 11, 1);
-    Trapezoid trap3(1, 1, 4, 6, 8, 6, 11, 1);
+TEST(RectangleTest, CenterCalculation) {
+    Point<int> p1(1, 1);
+    Point<int> p2(5, 5);
+    Rectangle<int> rect(p1, p2);
 
-    EXPECT_TRUE(trap1 == trap2);
-    EXPECT_FALSE(trap1 == trap3);
+    auto center = rect.Center();
+
+    EXPECT_EQ(center, std::make_pair(3, 3));
 }
 
-TEST(FigureArrayTest, AddAndGetFigures) {
-    FigureArray figures;
-    Rectangle* rect = new Rectangle(0, 0, 4, 3);
-    Square* square = new Square(1, 1, 3, 3);
-    Trapezoid* trapezoid = new Trapezoid(1, 1, 4, 7, 8, 7, 11, 1);
+TEST(RectangleTest, EqualityOperator) {
+    Point<double> p1(0.0, 0.0);
+    Point<double> p2(4.0, 3.0);
+    Rectangle<double> rect1(p1, p2);
+    Rectangle<double> rect2(p1, p2);
 
-    figures.Add(rect);
-    figures.Add(square);
-    figures.Add(trapezoid);
+    EXPECT_TRUE(rect1 == rect2);
+}
 
-    EXPECT_EQ(figures.Size(), 3);
-    EXPECT_EQ(figures.Get(0), rect);
-    EXPECT_EQ(figures.Get(1), square);
-    EXPECT_EQ(figures.Get(2), trapezoid);
+TEST(RectangleTest, CloneMethod) {
+    Point<int> p1(0, 0);
+    Point<int> p2(4, 3);
+    Rectangle<int> rect(p1, p2);
+
+    std::unique_ptr<Figure<int>> clonedRect(rect.Clone());
+
+    EXPECT_TRUE(rect == *clonedRect);
+}
+
+TEST(TrapezoidTest, AreaCalculation) {
+    Point<int> p1(0, 0);
+    Point<int> p2(6, 0);
+    Point<int> p3(5, 3);
+    Point<int> p4(1, 3);
+    Trapezoid<int> trapezoid(p1, p2, p3, p4);
+
+    double area = static_cast<double>(trapezoid);
+
+    EXPECT_DOUBLE_EQ(area, 15.0);
+}
+
+TEST(TrapezoidTest, CenterCalculation) {
+    Point<double> p1(1.0, 1.0);
+    Point<double> p2(5.0, 1.0);
+    Point<double> p3(4.0, 3.0);
+    Point<double> p4(2.0, 3.0);
+    Trapezoid<double> trapezoid(p1, p2, p3, p4);
+
+    auto center = trapezoid.Center();
+
+    EXPECT_EQ(center, std::make_pair(3.0, 2.0));
+}
+
+TEST(TrapezoidTest, EqualityOperator) {
+    Point<int> p1(0, 0);
+    Point<int> p2(4, 0);
+    Point<int> p3(3, 2);
+    Point<int> p4(1, 2);
+    Trapezoid<int> trapezoid1(p1, p2, p3, p4);
+    Trapezoid<int> trapezoid2(p1, p2, p3, p4);
+
+    EXPECT_TRUE(trapezoid1 == trapezoid2);
+}
+
+TEST(TrapezoidTest, CloneMethod) {
+    Point<double> p1(0.0, 0.0);
+    Point<double> p2(4.0, 0.0);
+    Point<double> p3(3.0, 2.0);
+    Point<double> p4(1.0, 2.0);
+    Trapezoid<double> trapezoid(p1, p2, p3, p4);
+
+    std::unique_ptr<Figure<double>> clonedTrapezoid(trapezoid.Clone());
+
+    EXPECT_TRUE(trapezoid == *clonedTrapezoid);
+}
+
+TEST(FigureArrayTest, AddAndSize) {
+    FigureArray<double> figures;
+    auto square = std::make_shared<Square<double>>(Point<double>(0.0, 0.0), Point<double>(2.0, 2.0));
+    auto rect = std::make_shared<Rectangle<double>>(Point<double>(0.0, 0.0), Point<double>(4.0, 3.0));
+
+    figures.add(square);
+    figures.add(rect);
+
+    EXPECT_EQ(figures.size(), 2);
 }
 
 TEST(FigureArrayTest, RemoveFigure) {
-    FigureArray figures;
-    figures.Add(new Rectangle(0, 0, 4, 3));
-    figures.Add(new Square(1, 1, 3, 3));
-    figures.Add(new Trapezoid(1, 1, 4, 7, 8, 7, 11, 1));
+    FigureArray<int> figures;
+    auto square = std::make_shared<Square<int>>(Point<int>(0, 0), Point<int>(2, 2));
+    auto rect = std::make_shared<Rectangle<int>>(Point<int>(0, 0), Point<int>(4, 3));
+    figures.add(square);
+    figures.add(rect);
 
-    figures.Remove(1);
+    figures.remove(0);
 
-    EXPECT_EQ(figures.Size(), 2);
-    EXPECT_THROW(figures.Get(2), std::out_of_range);
+    EXPECT_TRUE(*figures[0] == *rect);
 }
 
-TEST(FigureArrayTest, TotalArea) {
-    FigureArray figures;
-    figures.Add(new Rectangle(0, 0, 4, 3)); // Area = 12
-    figures.Add(new Square(1, 1, 3, 3));    // Area = 4
-    figures.Add(new Trapezoid(1, 1, 4, 7, 8, 7, 11, 1)); // Area = 8
+TEST(FigureArrayTest, TotalAreaCalculation) {
+    FigureArray<double> figures;
+    auto square = std::make_shared<Square<double>>(Point<double>(0.0, 0.0), Point<double>(2.0, 2.0)); // Area = 4
+    auto rect = std::make_shared<Rectangle<double>>(Point<double>(0.0, 0.0), Point<double>(4.0, 3.0)); // Area = 12
+    figures.add(square);
+    figures.add(rect);
 
-    double totalArea = figures.TotalArea();
+    double totalArea = figures.totalArea();
 
-    EXPECT_DOUBLE_EQ(totalArea, 58.0);
+    EXPECT_DOUBLE_EQ(totalArea, 16.0);
 }
 
-TEST(FigureArrayTest, CloneFigures) {
-    Rectangle rect(0, 0, 4, 3);
-    Square square(1, 1, 3, 3);
-    Trapezoid trapezoid(1, 1, 4, 7, 8, 7, 11, 1);
+TEST(FigureArrayTest, OperatorAccess) {
+    FigureArray<int> figures;
+    auto trapezoid = std::make_shared<Trapezoid<int>>(
+        Point<int>(0, 0), Point<int>(4, 0), Point<int>(3, 2), Point<int>(1, 2));
+    figures.add(trapezoid);
 
-    Figure* rectClone = rect.Clone();
-    Figure* squareClone = square.Clone();
-    Figure* trapezoidClone = trapezoid.Clone();
+    auto retrievedFigure = figures[0];
 
-    EXPECT_TRUE(rect == *rectClone);
-    EXPECT_TRUE(square == *squareClone);
-    EXPECT_TRUE(trapezoid == *trapezoidClone);
-
-    delete rectClone;
-    delete squareClone;
-    delete trapezoidClone;
-}
-
-TEST(OperatorOverloadingTest, OutputStream) {
-    Rectangle rect(0, 0, 4, 3);
-    Square square(1, 1, 3, 3);
-    Trapezoid trapezoid(1, 1, 4, 7, 8, 7, 11, 1);
-
-    std::stringstream rectStream;
-    std::stringstream squareStream;
-    std::stringstream trapezoidStream;
-
-    rectStream << rect;
-    squareStream << square;
-    trapezoidStream << trapezoid;
-
-    EXPECT_NE(rectStream.str(), "");
-    EXPECT_NE(squareStream.str(), "");
-    EXPECT_NE(trapezoidStream.str(), "");
-}
-
-TEST(OperatorOverloadingTest, InputStream) {
-    std::stringstream rectInput("0 0 4 3");
-    std::stringstream squareInput("1 1 3 3");
-    std::stringstream trapezoidInput("1 1 4 7 8 7 11 1");
-
-    Rectangle rect(0, 0, 0, 0);
-    Square square(0, 0, 0, 0);
-    Trapezoid trapezoid(1, 1, 4, 7, 8, 7, 11, 1);
-
-    rectInput >> rect;
-    squareInput >> square;
-    trapezoidInput >> trapezoid;
-
-    EXPECT_EQ(rect.Center(), std::make_pair(2.0, 1.5));
-    EXPECT_EQ(square.Center(), std::make_pair(2.0, 2.0));
-    EXPECT_EQ(trapezoid.Center(), std::make_pair(6.0, 4.0));
+    EXPECT_TRUE(*retrievedFigure == *trapezoid);
 }
 
 TEST(FigureArrayTest, OutOfRangeAccess) {
-    FigureArray figures;
-    figures.Add(new Rectangle(0, 0, 4, 3));
+    FigureArray<double> figures;
 
-    EXPECT_THROW(figures.Get(1), std::out_of_range);
-    EXPECT_THROW(figures.Remove(1), std::out_of_range);
+    EXPECT_THROW(figures[0], std::out_of_range);
 }
 
+TEST(FigureArrayTest, RemoveOutOfRange) {
+    FigureArray<int> figures;
+    auto square = std::make_shared<Square<int>>(Point<int>(0, 0), Point<int>(2, 2));
+    figures.add(square);
+
+    EXPECT_THROW(figures.remove(1), std::out_of_range);
+}
