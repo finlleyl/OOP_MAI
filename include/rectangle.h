@@ -3,36 +3,35 @@
 
 #include <iostream>
 #include "figure.h"
+#include "point.h"
+#include <memory>
 
-class Rectangle : public Figure {
+template <Number T>
+class Rectangle : public Figure<T> {
 public:
-    Rectangle(double, double, double, double);
+    Rectangle(const Point<T>& point1, const Point<T>& point2);
+    Rectangle(const Rectangle<T>& other);
+    Rectangle(Rectangle<T>&& other) noexcept;
 
-    Rectangle(const Rectangle &other);
+    ~Rectangle() override = default;
 
-    Rectangle(Rectangle &&other) noexcept;
+    Rectangle<T>& operator=(const Rectangle<T>& other);
+    Rectangle<T>& operator=(Rectangle<T>&& other) noexcept;
 
-    ~Rectangle() override;
-
-    Rectangle &operator=(const Rectangle &other);
-
-    Rectangle &operator=(Rectangle &&other) noexcept;
-
-    std::pair<double, double> Center() const override;
-
+    std::pair<T, T> Center() const override;
     explicit operator double() const override;
+    bool operator==(const Figure<T>& other) const override;
+    void Print(std::ostream& os) const override;
+    Figure<T>* Clone() const override;
 
-    bool operator==(const Figure &other) const override;
-
-    void Print(std::ostream &os) const override;
-
-    friend std::istream &operator>>(std::istream &is, Rectangle &r);
-
-    Figure *Clone() const override;
+    template <Number U>
+    friend std::istream& operator>>(std::istream& is, Rectangle<U>& r);
 
 private:
-    double x1, y1;
-    double x2, y2;
+    std::unique_ptr<Point<T>> p1;
+    std::unique_ptr<Point<T>> p2;
 };
 
-#endif //RECTANGLE_H
+#endif // RECTANGLE_H
+
+

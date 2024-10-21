@@ -1,57 +1,83 @@
 #include "rectangle.h"
 #include <cmath>
 #include <stdexcept>
+#include "point.h"
 
-
-Rectangle::Rectangle(double x1, double y1, double x2, double y2) : x1(x1), y1(y1), x2(x2), y2(y2) {}
-
-Rectangle::Rectangle(const Rectangle &other) = default;
-
-Rectangle::Rectangle(Rectangle &&other) noexcept = default;
-
-Rectangle &Rectangle::operator=(const Rectangle &other) = default;
-
-Rectangle &Rectangle::operator=(Rectangle &&other) noexcept = default;
-
-std::pair<double, double> Rectangle::Center() const {
-    double center_x = (x1 + x2) / 2;
-    double center_y = (y1 + y2) / 2;
-
-    return std::make_pair(center_x, center_y);
+template <Number T>
+Rectangle<T>::Rectangle(const Point<T>& point1, const Point<T>& point2) {
+    p1 = std::make_unique<Point<T>>(point1);
+    p2 = std::make_unique<Point<T>>(point2);
 }
 
-Rectangle::operator double() const {
-    double width = std::abs(x2 - x1);
-    double height = std::abs(y2 - y1);
+template <Number T>
+Rectangle<T>::Rectangle(const Rectangle<T>& other) {
+    p1 = std::make_unique<Point<T>>(*other.p1);
+    p2 = std::make_unique<Point<T>>(*other.p2);
+}
 
+template <Number T>
+Rectangle<T>::Rectangle(Rectangle<T>&& other) noexcept
+    : p1(std::move(other.p1)), p2(std::move(other.p2)) {}
+
+template <Number T>
+Rectangle<T>& Rectangle<T>::operator=(const Rectangle<T>& other) {
+    if (this != &other) {
+        p1 = std::make_unique<Point<T>>(*other.p1);
+        p2 = std::make_unique<Point<T>>(*other.p2);
+    }
+    return *this;
+}
+
+template <Number T>
+Rectangle<T>& Rectangle<T>::operator=(Rectangle<T>&& other) noexcept {
+    if (this != &other) {
+        p1 = std::move(other.p1);
+        p2 = std::move(other.p2);
+    }
+    return *this;
+}
+
+template <Number T>
+std::pair<T, T> Rectangle<T>::Center() const {
+    T x = (p1->getX() + p2->getX()) / static_cast<T>(2);
+    T y = (p1->getY() + p2->getY()) / static_cast<T>(2);
+    return std::make_pair(x, y);
+}
+
+template <Number T>
+Rectangle<T>::operator double() const {
+    double width = std::abs(static_cast<double>(p2->getX() - p1->getX()));
+    double height = std::abs(static_cast<double>(p2->getY() - p1->getY()));
     return width * height;
 }
 
-
-bool Rectangle::operator==(const Figure &other) const {
-    if (const auto *rect = dynamic_cast<const Rectangle *>(&other)) {
-        return (x1 == rect->x1 && y1 == rect->y1 &&
-                x2 == rect->x2 && y2 == rect->y2);
+template <Number T>
+bool Rectangle<T>::operator==(const Figure<T>& other) const {
+    if (typeid(*this) != typeid(other)) {
+        return false;
     }
-    return false;
+    const auto& rect = static_cast<const Rectangle<T>&>(other);
+    return *p1 == *rect.p1 && *p2 == *rect.p2;
 }
 
-void Rectangle::Print(std::ostream &os) const {
+template <Number T>
+void Rectangle<T>::Print(std::ostream& os) const {
     os << "Rectangle coords:\n";
-    os << "(x1: " << x1 << ", y1: " << y1 << ")\n";
-    os << "(x2: " << x2 << ", y2: " << y2 << ")\n";
+    os << "(x1: " << p1->getX() << ", y1: " << p1->getY() << ")\n";
+    os << "(x2: " << p2->getX() << ", y2: " << p2->getY() << ")\n";
 }
 
-Figure *Rectangle::Clone() const {
-    return new Rectangle(*this);
+template <Number T>
+Figure<T>* Rectangle<T>::Clone() const {
+    return new Rectangle<T>(*this);
 }
 
-Rectangle::~Rectangle() = default;
-
-std::istream &operator>>(std::istream &is, Rectangle &r) {
-    double x1, y1, x2, y2;
+template <Number T>
+std::istream& operator>>(std::istream& is, Rectangle<T>& r) {
+    T x1, y1, x2, y2;
     is >> x1 >> y1 >> x2 >> y2;
-    r = Rectangle(x1, y1, x2, y2);
-
+    Point<T> p1(x1, y1);
+    Point<T> p2(x2, y2);
+    r = Rectangle<T>(p1, p2);
     return is;
 }

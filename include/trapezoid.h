@@ -2,40 +2,38 @@
 #define TRAPEZOID_H
 
 #include <iostream>
+#include <cmath>
+#include <stdexcept>
 #include "figure.h"
+#include "point.h"
 
-class Trapezoid : public Figure {
+template <Number T>
+class Trapezoid : public Figure<T> {
 public:
-    Trapezoid(double x1, double y1, double x2, double y2,
-              double x3, double y3, double x4, double y4);
+    Trapezoid(const Point<T>& p1, const Point<T>& p2,
+              const Point<T>& p3, const Point<T>& p4);
+    Trapezoid(const Trapezoid<T>& other);
+    Trapezoid(Trapezoid<T>&& other) noexcept;
 
-    Trapezoid(const Trapezoid &other);
+    ~Trapezoid() override = default;
 
-    Trapezoid(Trapezoid &&other) noexcept;
+    Trapezoid<T>& operator=(const Trapezoid<T>& other);
+    Trapezoid<T>& operator=(Trapezoid<T>&& other) noexcept;
 
-    ~Trapezoid() override;
-
-    Trapezoid &operator=(const Trapezoid &other);
-
-    Trapezoid &operator=(Trapezoid &&other) noexcept;
-
-    std::pair<double, double> Center() const override;
-
+    std::pair<T, T> Center() const override;
     explicit operator double() const override;
+    bool operator==(const Figure<T>& other) const override;
+    void Print(std::ostream& os) const override;
+    Figure<T>* Clone() const override;
 
-    bool operator==(const Figure &other) const override;
-
-    void Print(std::ostream &os) const override;
-
-    friend std::istream &operator>>(std::istream &is, Trapezoid &t);
-
-    Figure *Clone() const override;
+    template <Number U>
+    friend std::istream& operator>>(std::istream& is, Trapezoid<U>& t);
 
 private:
-    double x1, y1;
-    double x2, y2;
-    double x3, y3;
-    double x4, y4;
+    std::unique_ptr<Point<T>> p1;
+    std::unique_ptr<Point<T>> p2;
+    std::unique_ptr<Point<T>> p3;
+    std::unique_ptr<Point<T>> p4;
 };
 
 #endif // TRAPEZOID_H

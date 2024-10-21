@@ -2,37 +2,41 @@
 #define SQUARE_H
 
 #include <iostream>
+#include <cmath>
+#include <stdexcept>
 #include "figure.h"
+#include "point.h"
 
-class Square : public Figure {
+template <typename T>
+concept Number = std::is_integral_v<T> || std::is_floating_point_v<T>;
+
+template <Number T>
+class Square : public Figure<T> {
 public:
-    Square(double x1, double y1, double x2, double y2);
+    Square(const Point<T>& p1, const Point<T>& p2);
+    Square(const Square<T>& other);
+    Square(Square<T>&& other) noexcept;
 
-    Square(const Square &other);
+    ~Square() override = default;
 
-    Square(Square &&other) noexcept;
+    Square<T>& operator=(const Square<T>& other);
+    Square<T>& operator=(Square<T>&& other) noexcept;
 
-    ~Square() override;
 
-    Square &operator=(const Square &other);
-
-    Square &operator=(Square &&other) noexcept;
-
-    std::pair<double, double> Center() const override;
-
+    std::pair<T, T> Center() const override;
     explicit operator double() const override;
+    bool operator==(const Figure<T>& other) const override;
+    void Print(std::ostream& os) const override;
+    Figure<T>* Clone() const override;
 
-    bool operator==(const Figure &other) const override;
-
-    void Print(std::ostream &os) const override;
-
-    friend std::istream &operator>>(std::istream &is, Square &s);
-
-    Figure *Clone() const override;
+    template <Number U>
+    friend std::istream& operator>>(std::istream& is, Square<U>& s);
 
 private:
-    double x1, y1;
-    double x2, y2;
+    std::unique_ptr<Point<T>> p1;
+    std::unique_ptr<Point<T>> p2;
 };
+
+
 
 #endif // SQUARE_H

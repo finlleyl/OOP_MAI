@@ -1,66 +1,102 @@
 #include "trapezoid.h"
 #include <cmath>
 
-Trapezoid::Trapezoid(double x1, double y1, double x2, double y2,
-                     double x3, double y3, double x4, double y4)
-    : x1(x1), y1(y1), x2(x2), y2(y2), x3(x3), y3(y3), x4(x4), y4(y4) {
-    double base1_x = std::abs(x2 - x1);
-    double base2_x = std::abs(x4 - x3);
+template <Number T>
+Trapezoid<T>::Trapezoid(const Point<T>& point1, const Point<T>& point2,
+                        const Point<T>& point3, const Point<T>& point4) {
+    p1 = std::make_unique<Point<T>>(point1);
+    p2 = std::make_unique<Point<T>>(point2);
+    p3 = std::make_unique<Point<T>>(point3);
+    p4 = std::make_unique<Point<T>>(point4);
+}
 
-    if (base1_x != base2_x) {
-        throw std::invalid_argument("No trapezoid");
+template <Number T>
+Trapezoid<T>::Trapezoid(const Trapezoid<T>& other) {
+    p1 = std::make_unique<Point<T>>(*other.p1);
+    p2 = std::make_unique<Point<T>>(*other.p2);
+    p3 = std::make_unique<Point<T>>(*other.p3);
+    p4 = std::make_unique<Point<T>>(*other.p4);
+}
+
+template <Number T>
+Trapezoid<T>::Trapezoid(Trapezoid<T>&& other) noexcept
+    : p1(std::move(other.p1)), p2(std::move(other.p2)),
+      p3(std::move(other.p3)), p4(std::move(other.p4)) {}
+
+template <Number T>
+Trapezoid<T>& Trapezoid<T>::operator=(const Trapezoid<T>& other) {
+    if (this != &other) {
+        p1 = std::make_unique<Point<T>>(*other.p1);
+        p2 = std::make_unique<Point<T>>(*other.p2);
+        p3 = std::make_unique<Point<T>>(*other.p3);
+        p4 = std::make_unique<Point<T>>(*other.p4);
     }
+    return *this;
 }
 
-Trapezoid::Trapezoid(const Trapezoid &other) = default;
-
-Trapezoid::Trapezoid(Trapezoid &&other) noexcept = default;
-
-Trapezoid &Trapezoid::operator=(const Trapezoid &other) = default;
-
-Trapezoid &Trapezoid::operator=(Trapezoid &&other) noexcept = default;
-
-Trapezoid::~Trapezoid() = default;
-
-std::pair<double, double> Trapezoid::Center() const {
-    double center_x = (x1 + x2 + x3 + x4) / 4.0;
-    double center_y = (y1 + y2 + y3 + y4) / 4.0;
-    return std::make_pair(center_x, center_y);
+template <Number T>
+Trapezoid<T>& Trapezoid<T>::operator=(Trapezoid<T>&& other) noexcept {
+    if (this != &other) {
+        p1 = std::move(other.p1);
+        p2 = std::move(other.p2);
+        p3 = std::move(other.p3);
+        p4 = std::move(other.p4);
+    }
+    return *this;
 }
 
-Trapezoid::operator double() const {
+template <Number T>
+std::pair<T, T> Trapezoid<T>::Center() const {
+    T centerX = (p1->getX() + p2->getX() + p3->getX() + p4->getX()) / static_cast<T>(4);
+    T centerY = (p1->getY() + p2->getY() + p3->getY() + p4->getY()) / static_cast<T>(4);
+    return std::make_pair(centerX, centerY);
+}
+
+template <Number T>
+Trapezoid<T>::operator double() const {
     double area = 0.5 * std::abs(
-                      x1 * y2 + x2 * y3 + x3 * y4 + x4 * y1 -
-                      y1 * x2 - y2 * x3 - y3 * x4 - y4 * x1
-                  );
+        static_cast<double>(p1->getX() * p2->getY() + p2->getX() * p3->getY() +
+                            p3->getX() * p4->getY() + p4->getX() * p1->getY()) -
+        static_cast<double>(p1->getY() * p2->getX() + p2->getY() * p3->getX() +
+                            p3->getY() * p4->getX() + p4->getY() * p1->getX())
+    );
     return area;
 }
 
-bool Trapezoid::operator==(const Figure &other) const {
-    if (const auto *t = dynamic_cast<const Trapezoid *>(&other)) {
-        return (x1 == t->x1 && y1 == t->y1 &&
-                x2 == t->x2 && y2 == t->y2 &&
-                x3 == t->x3 && y3 == t->y3 &&
-                x4 == t->x4 && y4 == t->y4);
+template <Number T>
+bool Trapezoid<T>::operator==(const Figure<T>& other) const {
+    if (typeid(*this) != typeid(other)) {
+        return false;
     }
-    return false;
+    const auto& t = static_cast<const Trapezoid<T>&>(other);
+    return *p1 == *t.p1 && *p2 == *t.p2 && *p3 == *t.p3 && *p4 == *t.p4;
 }
 
-void Trapezoid::Print(std::ostream &os) const {
-    os << "Trapezoid coords:\n";
-    os << "(x1: " << x1 << ", y1: " << y1 << ")\n";
-    os << "(x2: " << x2 << ", y2: " << y2 << ")\n";
-    os << "(x3: " << x3 << ", y3: " << y3 << ")\n";
-    os << "(x4: " << x4 << ", y4: " << y4 << ")\n";
+template <Number T>
+void Trapezoid<T>::Print(std::ostream& os) const {
+    os << "Trapezoid vertices:\n";
+    os << "p1: (" << p1->getX() << ", " << p1->getY() << ")\n";
+    os << "p2: (" << p2->getX() << ", " << p2->getY() << ")\n";
+    os << "p3: (" << p3->getX() << ", " << p3->getY() << ")\n";
+    os << "p4: (" << p4->getX() << ", " << p4->getY() << ")\n";
 }
 
-Figure *Trapezoid::Clone() const {
-    return new Trapezoid(*this);
+template <Number T>
+Figure<T>* Trapezoid<T>::Clone() const {
+    return new Trapezoid<T>(*this);
 }
 
-std::istream &operator>>(std::istream &is, Trapezoid &t) {
-    double x1, y1, x2, y2, x3, y3, x4, y4;
-    is >> x1 >> y1 >> x2 >> y2 >> x3 >> y3 >> x4 >> y4;
-    t = Trapezoid(x1, y1, x2, y2, x3, y3, x4, y4);
+template <Number T>
+std::istream& operator>>(std::istream& is, Trapezoid<T>& t) {
+    T x, y;
+    is >> x >> y;
+    auto p1 = std::make_unique<Point<T>>(x, y);
+    is >> x >> y;
+    auto p2 = std::make_unique<Point<T>>(x, y);
+    is >> x >> y;
+    auto p3 = std::make_unique<Point<T>>(x, y);
+    is >> x >> y;
+    auto p4 = std::make_unique<Point<T>>(x, y);
+    t = Trapezoid<T>(*p1, *p2, *p3, *p4);
     return is;
 }

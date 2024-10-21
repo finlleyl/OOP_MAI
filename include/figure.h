@@ -3,8 +3,9 @@
 
 #include <utility>
 #include <stdexcept>
+#include "point.h"
 
-
+template <Number T>
 class Figure {
 public:
     virtual ~Figure() noexcept = default;
@@ -13,7 +14,8 @@ public:
 
     virtual explicit operator double() const = 0;
 
-    virtual Figure *Clone() const = 0;
+    virtual Figure<T>* Clone() const = 0;
+
 
     virtual bool operator==(const Figure &other) const = 0;
 
