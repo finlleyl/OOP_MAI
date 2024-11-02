@@ -32,7 +32,7 @@ jobs:
 
     - name: Run Clang-Tidy
       run: |
-        clang-tidy src/*.cpp -- -Iinclude
+        clang-tidy src/*.cpp -- -Iinclude -std=c++17
 
 
     - name: Build project
