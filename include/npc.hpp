@@ -44,7 +44,6 @@ template <typename Numeric>
 class BearFactory : public NPCFactory<Numeric> {
 public:
     std::unique_ptr<NPC<Numeric>> createNPC(const std::string& name, const Coords<Numeric>& coords) const override;
-    }
 };
 
 template <typename Numeric>
@@ -64,7 +63,6 @@ template <typename Numeric>
 class ElfFactory : public NPCFactory<Numeric> {
 public:
     std::unique_ptr<NPC<Numeric>> createNPC(const std::string& name, const Coords<Numeric>& coords) const override;
-    }
 };
 
 template <typename Numeric>
