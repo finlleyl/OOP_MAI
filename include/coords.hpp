@@ -2,24 +2,27 @@
 #define COORDS_HPP
 
 #include "concept.hpp"
+#include <cmath>
 
-template <typename Numeric>
+template <Numeric T>
 class Coords {
 public:
-    Coords(Numeric x, Numeric y);
-    Coords();
+    Coords(T x, T y) : x(x), y(y) {}
+    Coords() : x(0), y(0) {}
 
-    Numeric getX() const;
-    Numeric getY() const;
+    T getX() const { return x; }
+    T getY() const { return y; }
 
-    void setX(Numeric x);
-    void setY(Numeric y);
+    void setX(T x) { this->x = x; }
+    void setY(T y) { this->y = y; }
 
-    Numeric distance(const Coords<Numeric> &other) const;
+    T distance(const Coords<T> &other) const {
+        return std::sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
+    }
 
 private:
-    Numeric x;
-    Numeric y;
+    T x;
+    T y;
 };
 
 #endif // COORDS_HPP
