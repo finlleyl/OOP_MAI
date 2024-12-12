@@ -1,101 +1,68 @@
-// tests.cpp
 #include <gtest/gtest.h>
-#include "coords.hpp"
-#include "npc.hpp"
-#include "observer.hpp"
-#include "visitor.hpp"
-#include "fight_manager.hpp"
-#include <memory>
 
-TEST(CoordsTest, DistanceCalculation) {
-    Coords<double> pointA(0.0, 0.0);
-    Coords<double> pointB(3.0, 4.0);
+#include "Map.hpp"
+#include "FactoryImpl.hpp"
+#include "FightLogObserver.hpp"
+#include "ConsoleLogObserver.hpp"
+#include "ThreadSafeIO.hpp"
+#include "FightTask.hpp"
+#include "Elf.hpp"
+#include "Rogue.hpp"
+#include "NPC.hpp"
 
-    double distance = pointA.distance(pointB);
+TEST(FactoryTest, CreateNPCs) {
+    FactoryImpl factory;
+    
+    auto elf = factory.createElf("Legolas", 10, 20);
 
-    EXPECT_DOUBLE_EQ(distance, 5.0);
+    EXPECT_EQ(elf->getType(), "Elf");
 }
 
-TEST(NPCTest, Creation) {
-    BearFactory<double> bearFactory;
-    FightManager<double> manager;
+TEST(NPCTest, InitialState) {
+    Elf elf("Elfy", 10, 10);
 
-    auto bear = bearFactory.createNPC("Bear", Coords<double>(0.0, 0.0), manager);
-
-    EXPECT_EQ(bear->getName(), "Bear");
+    EXPECT_EQ(elf.getType(), "Elf");
 }
 
-TEST(CombatTest, BearAttacksElf) {
-    FightManager<double> manager;
-    BearFactory<double> bearFactory;
-    ElfFactory<double> elfFactory;
+TEST(NPCTest, KillNPC) {
+    Elf elf("DeadElf", 20, 20);
 
-    auto bear = bearFactory.createNPC("Bear", Coords<double>(0.0, 0.0), manager);
-    auto elf = elfFactory.createNPC("Elf", Coords<double>(1.0, 1.0), manager);
+    elf.kill();
 
-    CombatVisitor<double> visitor(*bear, manager);
-    elf->accept(visitor);
-
-    EXPECT_EQ(elf->getHealth(), 0);
+    EXPECT_FALSE(elf.isAlive());
 }
 
-template <typename Numeric>
-class TestObserver : public Observer<Numeric> {
-public:
-    std::vector<std::string> notifications;
+TEST(MapTest, AddAndGetNPCs) {
+    Map map;
+    FactoryImpl factory;
 
-    void onNPCDeath(const NPC<Numeric>& npc, const NPC<Numeric>& killer) override {
-        notifications.push_back("onNPCDeath: " + npc.getName() + " killed by " + killer.getName());
-    }
+    map.addNPC(factory.createElf("E1", 10, 10));
+    map.addNPC(factory.createRogue("R1", 5, 5));
+    auto alive = map.getAliveNPCs();
 
-    void onRoundStart(int roundNumber) override {
-        notifications.push_back("onRoundStart: " + std::to_string(roundNumber));
-    }
-
-    void onRoundEnd(int roundNumber) override {
-        notifications.push_back("onRoundEnd: " + std::to_string(roundNumber));
-    }
-
-    void onAttack(const NPC<Numeric>& attacker, const NPC<Numeric>& target) override {
-        notifications.push_back("onAttack: " + attacker.getName() + " attacked " + target.getName());
-    }
-
-    void onCreate(const NPC<Numeric>& npc) override {
-        notifications.push_back("onCreate: " + npc.getName());
-    }
-};
-
-TEST(ObserverTest, Notifications) {
-    FightManager<double> manager;
-    TestObserver<double> observer;
-    manager.addObserver(&observer);
-
-    BearFactory<double> bearFactory;
-    ElfFactory<double> elfFactory;
-
-    auto bear = bearFactory.createNPC("Bear", Coords<double>(0.0, 0.0), manager);
-    auto elf = elfFactory.createNPC("Elf", Coords<double>(1.0, 1.0), manager);
-
-    manager.addNPC(std::move(bear));
-    manager.addNPC(std::move(elf));
-
-    manager.startFight(10.0);
-
-    ASSERT_GE(observer.notifications.size(), 5);
+    EXPECT_EQ(alive.size(), 2u);
 }
 
-TEST(FightManagerTest, RemoveDeadNPCs) {
-    FightManager<double> manager;
-    BearFactory<double> bearFactory;
-    ElfFactory<double> elfFactory;
+TEST(MapTest, RemoveDeadNPCs) {
+    Map map;
+    FactoryImpl factory;
+    map.addNPC(factory.createElf("E2", 10, 10));
+    map.addNPC(factory.createRogue("R2", 5, 5));
 
-    auto bear = bearFactory.createNPC("Bear", Coords<double>(0.0, 0.0), manager);
-    auto elf = elfFactory.createNPC("Elf", Coords<double>(1.0, 1.0), manager);
+    auto npcs = map.getAliveNPCs();
+    npcs[0]->kill();
+    map.removeDead();
+    auto aliveAfter = map.getAliveNPCs();
 
-    manager.addNPC(std::move(bear));
-    manager.addNPC(std::move(elf));
+    EXPECT_EQ(aliveAfter.size(), 1u);
+}
 
-    manager.startFight(10.0);
+TEST(FightTest, OneOrBothDie) {
+    Elf elf("FighterElf",50,50);
+    Rogue rogue("FighterRogue",51,50);
+    FightTask fight(&elf, &rogue);
 
-    EXPECT_EQ(manager.getNPCCount(), 1);
+    fight();
+
+    EXPECT_FALSE(elf.isAlive() && rogue.isAlive());
 }

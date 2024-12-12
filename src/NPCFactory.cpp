@@ -1,0 +1,1 @@
+#include "NPCFactory.hpp"
